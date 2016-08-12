@@ -32,6 +32,18 @@ spec:
       containers:
       - image: ipedrazas/docmock:latest
         name: api
+        livenessProbe:
+          httpGet:
+            path: /_status/healthz
+            port: 5000
+          initialDelaySeconds: 30
+          timeoutSeconds: 1
+        readinessProbe:
+          exec:
+            command:
+            - /dependency_checker.py
+          initialDelaySeconds: 10
+          timeoutSeconds: 5
         env:
         - name: ENDPOINT
           value: srv{{ .Index }}

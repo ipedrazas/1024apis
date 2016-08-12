@@ -1,3 +1,4 @@
+---
 apiVersion: v1
 kind: Service
 metadata:
@@ -9,7 +10,7 @@ spec:
     protocol: TCP
   selector:
     app: {{ .Name }}
-    order: {{ .Index }}
+    order: "{{ .Index }}"
 ---
 apiVersion: extensions/v1beta1
 kind: Deployment
@@ -17,7 +18,7 @@ metadata:
   name: {{ .Name }}
   labels:
     app: {{ .Name }}
-    order: {{ .Index }}
+    order: "{{ .Index }}"
 spec:
   strategy:
     type: Recreate
@@ -29,7 +30,7 @@ spec:
         tier: first
     spec:
       containers:
-      - image: ipedrazas/dockmock:latest
+      - image: ipedrazas/docmock:latest
         name: api
         livenessProbe:
           httpGet:
