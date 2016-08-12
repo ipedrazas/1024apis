@@ -58,6 +58,7 @@ func createService(i int, baseDir string, baseTemplate string) {
 		JSONBody: b64json,
 		Name:     name,
 	}
+	buffer.WriteString(".yaml")
 	f, err := os.Create(buffer.String())
 	check(err)
 
