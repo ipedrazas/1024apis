@@ -39,15 +39,15 @@ spec:
           initialDelaySeconds: 30
           timeoutSeconds: 1
         readinessProbe:
-          exec:
-            command:
-            - /dependency_checker.py
-          initialDelaySeconds: 10
-          timeoutSeconds: 5
+          ehttpGet:
+            path: /_status/healthz
+            port: 5000
+          initialDelaySeconds: 30
+          timeoutSeconds: 
         env:
         - name: ENDPOINT
           value: srv{{ .Index }}
-        - name: JSON
+        - name: BJSON
           value: "{{ .JSONBody }}"
         ports:
         - containerPort: 5000

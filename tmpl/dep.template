@@ -4,6 +4,7 @@ kind: Service
 metadata:
   name: {{ .Name }}-srv
 spec:
+  type: NodePort
   ports:
   - port: 5000
     targetPort: 5000
@@ -26,16 +27,17 @@ spec:
     metadata:
       labels:
         name: {{ .Name }}
+        order: "{{ .Index }}"
         app: mock
         tier: first
     spec:
       containers:
       - image: ipedrazas/docmock:latest
-        name: api
+        name: api-{{ .Name }}
         env:
         - name: ENDPOINT
           value: srv{{ .Index }}
-        - name: JSON
+        - name: BJSON
           value: "{{ .JSONBody }}"
         ports:
         - containerPort: 5000

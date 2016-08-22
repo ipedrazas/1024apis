@@ -26,12 +26,13 @@ spec:
     metadata:
       labels:
         name: {{ .Name }}
+        order: "{{ .Index }}"
         app: mock
         tier: first
     spec:
       containers:
       - image: ipedrazas/docmock:latest
-        name: api
+        name: api-{{ .Name }}
         livenessProbe:
           httpGet:
             path: /_status/healthz
@@ -41,7 +42,7 @@ spec:
         env:
         - name: ENDPOINT
           value: srv{{ .Index }}
-        - name: JSON
+        - name: BJSON
           value: "{{ .JSONBody }}"
         ports:
         - containerPort: 5000
