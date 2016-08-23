@@ -4,14 +4,12 @@ kind: Service
 metadata:
   name: {{ .Name }}-srv
 spec:
-  type: NodePort
   ports:
   - port: 5000
     targetPort: 5000
     protocol: TCP
   selector:
     app: {{ .Name }}
-    order: "{{ .Index }}"
 ---
 apiVersion: extensions/v1beta1
 kind: Deployment
@@ -26,9 +24,8 @@ spec:
   template:
     metadata:
       labels:
-        name: {{ .Name }}
+        app: {{ .Name }}
         order: "{{ .Index }}"
-        app: mock
         tier: first
     spec:
       containers:
@@ -39,6 +36,8 @@ spec:
           value: srv{{ .Index }}
         - name: BJSON
           value: "{{ .JSONBody }}"
+        - name: DEPENDENCIES
+          value: "{{range $index, $element := .Dependencies}}{{if $index}},{{end}}{{$element}}{{end}}"
         ports:
         - containerPort: 5000
           name: {{ .Name }}

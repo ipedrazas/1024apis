@@ -57,9 +57,8 @@ func generateDependencies(numServices int, maxDependencies int, block int) []str
 		for dep == block {
 			dep = random(1, numServices)
 		}
-		deps[idx] = fmt.Sprintf("ms-%04d", dep)
+		deps[idx] = fmt.Sprintf("http://ms-%04d:5000/srv%d", dep, dep)
 	}
-
 	return deps
 }
 
