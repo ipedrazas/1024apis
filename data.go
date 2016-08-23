@@ -45,31 +45,47 @@ func generateJSON() []byte {
 	return buffer.Bytes()
 }
 
+func intInSlice(index int, list []int) bool {
+	for _, v := range list {
+		if v == index {
+			return true
+		}
+	}
+	return false
+}
+
 // generate dependencies.
 // Avoid dependening on itself (block int)
 // numServices: how many services do we have in total.
 // maxDependencies: how many dependencies we want to have as max.
 func generateDependencies(numServices int, maxDependencies int, block int) []string {
+	// makes no sense to have more dependencies than services
+	if maxDependencies > numServices {
+		maxDependencies = numServices
+	}
 	numDep := random(0, maxDependencies)
 	deps := make([]string, numDep)
+	iDeps := make([]int, numDep+1)
+	iDeps[0] = block
 	for idx := range deps {
 		dep := block
-		for dep == block {
+		for intInSlice(dep, iDeps) {
 			dep = random(1, numServices)
 		}
-		deps[idx] = fmt.Sprintf("http://ms-%04d:5000/srv%d", dep, dep)
+		iDeps[idx+1] = dep
+		deps[idx] = fmt.Sprintf("http://ms-%04d-srv:5000/srv%d", dep, dep)
 	}
 	return deps
 }
 
-func createService(i int, total int, maxDep int, baseDir string, baseTemplate string) Deployment {
+func createService(index int, total int, maxDep int, baseDir string, baseTemplate string) Deployment {
 	// generate random json doc
 	jsonObj := generateJSON()
-	dependencies := generateDependencies(total, maxDep, i)
+	dependencies := generateDependencies(total, maxDep, index)
 	b64json := base64.StdEncoding.EncodeToString(jsonObj)
-	name := fmt.Sprintf("ms-%04d", i)
+	name := fmt.Sprintf("ms-%04d", index)
 	return Deployment{
-		Index:        i,
+		Index:        index,
 		JSONBody:     b64json,
 		Name:         name,
 		Dependencies: dependencies,

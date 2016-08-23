@@ -1,4 +1,48 @@
 ---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: {{ .Name }}
+  labels:
+    name: {{ .Name }}
+spec:
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        name: {{ .Name }}
+    spec:
+      containers:
+      - image: ipedrazas/docmock:latest
+        name: api-{{ .Name }}
+        imagePullPolicy: Always
+        livenessProbe:
+          httpGet:
+            path: /_status/healthz
+            port: 5000
+          initialDelaySeconds: 60
+          timeoutSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /_status/healthz
+            port: 5000
+          initialDelaySeconds: 30
+          timeoutSeconds: 10
+        env:
+        - name: ENDPOINT
+          value: srv{{ .Index }}
+        - name: BJSON
+          value: "{{ .JSONBody }}"
+        - name: DEPENDENCIES
+          value: "{{range $index, $element := .Dependencies}}{{if $index}},{{end}}{{$element}}{{end}}"
+        - name: DEBUG
+          value: "true"
+        ports:
+        - containerPort: 5000
+          name: {{ .Name }}
+
+---
 apiVersion: v1
 kind: Service
 metadata:
@@ -9,35 +53,4 @@ spec:
     targetPort: 5000
     protocol: TCP
   selector:
-    app: {{ .Name }}
----
-apiVersion: extensions/v1beta1
-kind: Deployment
-metadata:
-  name: {{ .Name }}
-  labels:
-    app: {{ .Name }}
-    order: "{{ .Index }}"
-spec:
-  strategy:
-    type: Recreate
-  template:
-    metadata:
-      labels:
-        app: {{ .Name }}
-        order: "{{ .Index }}"
-        tier: first
-    spec:
-      containers:
-      - image: ipedrazas/docmock:latest
-        name: api-{{ .Name }}
-        env:
-        - name: ENDPOINT
-          value: srv{{ .Index }}
-        - name: BJSON
-          value: "{{ .JSONBody }}"
-        - name: DEPENDENCIES
-          value: "{{range $index, $element := .Dependencies}}{{if $index}},{{end}}{{$element}}{{end}}"
-        ports:
-        - containerPort: 5000
-          name: {{ .Name }}
+    name: {{ .Name }}
