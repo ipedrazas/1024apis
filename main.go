@@ -13,18 +13,6 @@ func check(e error) {
 	}
 }
 
-// exists returns whether the given file or directory exists or not
-func exists(path string) (bool, error) {
-	_, err := os.Stat(path)
-	if err == nil {
-		return true, nil
-	}
-	if os.IsNotExist(err) {
-		return false, nil
-	}
-	return true, err
-}
-
 func main() {
 	rand.Seed(time.Now().Unix())
 	numRes := flag.Int("n", 1, "Number of resources created")
@@ -39,7 +27,7 @@ func main() {
 
 	services := make([]Deployment, *numRes)
 	for i := 1; i < *numRes+1; i++ {
-		srv := createService(i, *numRes, *maxDep, *baseDir, *baseTemplate)
+		srv := createService(i, *numRes, *maxDep)
 		services[i-1] = srv
 	}
 
