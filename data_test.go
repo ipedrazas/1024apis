@@ -66,19 +66,46 @@ func TestGenerateDependency(t *testing.T) {
 	}
 }
 
-func TestCreateService(t *testing.T) {
-	// index int, total int, maxDep int
-	//
-	index := 3
-	total := 100
-	maxDep := 3
-	srv := createService(index, total, maxDep)
-	if srv.Index != index {
-		t.Error("Index is wrong")
+// func TestCreateService(t *testing.T) {
+// 	// index int, total int, maxDep int
+// 	//
+// 	index := 3
+// 	total := 100
+// 	maxDep := 3
+// 	srv := createService(index, total, maxDep)
+// 	if srv.Index != index {
+// 		t.Error("Index is wrong")
+// 	}
+// 	if len(srv.DependencyIndexes) > maxDep {
+// 		t.Error("Too many dependencies")
+// 	}
+// 	// js, _ := json.Marshal(srv)
+// 	// fmt.Println(string(js))
+// }
+
+func TestAddToSlice(t *testing.T) {
+	sl := []int{1, 2, 3, 4}
+	sl = addtoSlice(5, sl)
+	if !intInSlice(5, sl) {
+		t.Error("Int not added to Slice")
 	}
-	if len(srv.DependencyIndexes) > maxDep {
-		t.Error("Too many dependencies")
+}
+
+func TestDependencyMap(t *testing.T) {
+	dep := createDependencyMap(10, 3)
+	// DependencyMap has a zero
+	if len(dep) != 11 {
+		t.Error("DependencyMap size is wrong")
 	}
-	// js, _ := json.Marshal(srv)
+	// js, _ := json.Marshal(dep)
 	// fmt.Println(string(js))
+}
+
+func TestCreateServices(t *testing.T) {
+	total := 10
+	maxDependencies := 3
+	services := createServices(total, maxDependencies)
+	if len(services) != 10 {
+		t.Error("Services sizes is not right")
+	}
 }

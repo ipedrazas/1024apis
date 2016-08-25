@@ -25,11 +25,7 @@ func main() {
 		os.MkdirAll(*baseDir, 0755)
 	}
 
-	services := make([]Deployment, *numRes)
-	for i := 1; i < *numRes+1; i++ {
-		srv := createService(i, *numRes, *maxDep)
-		services[i-1] = srv
-	}
+	services := createServices(*numRes, *maxDep)
 
 	generateMatrix(services, *baseDir)
 	writeServicesToYaml(services, *baseDir, *baseTemplate)

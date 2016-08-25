@@ -13,7 +13,7 @@ import (
 )
 
 func random(min, max int) int {
-	rand.Seed(time.Now().Unix())
+	rand.Seed(time.Now().UTC().UnixNano())
 	return rand.Intn(max-min) + min
 }
 
@@ -57,7 +57,7 @@ func intInSlice(index int, list []int) bool {
 }
 
 func allowedDependency(dependency int, AllDependencies []int, blocked []int) bool {
-	return !intInSlice(dependency, blocked)
+	return !intInSlice(dependency, blocked) && !intInSlice(dependency, AllDependencies)
 }
 
 // generate dependencies.
@@ -84,23 +84,25 @@ func generateDependencies(numServices int, maxDependencies int, block []int) []i
 	return deps
 }
 
-func createService(index int, total int, maxDep int) Deployment {
+func createService(dependencies Dependencies) Deployment {
 	// generate random json doc
 	jsonObj := generateJSON()
-	dependencies := generateDependencies(total, maxDep, []int{index})
 	b64json := base64.StdEncoding.EncodeToString(jsonObj)
-	name := fmt.Sprintf("ms-%04d", index)
-	deps := make([]string, len(dependencies))
-	for idx, dependecy := range dependencies {
+	deps := make([]string, len(dependencies.List))
+	depNames := make([]string, len(dependencies.List))
+	for idx, dependecy := range dependencies.List {
 		deps[idx] = fmt.Sprintf("http://ms-%04d-srv:5000/srv%d", dependecy, dependecy)
+		depNames[idx] = fmt.Sprintf("ms-%04d", dependecy)
 	}
 
 	return Deployment{
-		Index:             index,
+		Index:             dependencies.Index,
 		JSONBody:          b64json,
-		Name:              name,
-		DependencyIndexes: dependencies,
+		Name:              fmt.Sprintf("ms-%04d", dependencies.Index),
+		DependencyIndexes: dependencies.List,
 		Dependencies:      deps,
+		DependencyNames:   depNames,
+		ForbiddenIndexes:  dependencies.Forbidden,
 	}
 }
 
@@ -116,6 +118,62 @@ func writeServicesToYaml(services []Deployment, baseDir string, baseTemplate str
 		t, _ := template.ParseFiles(baseTemplate) // Parse template file.
 		t.Execute(f, d)
 	}
+}
+
+func addtoSlice(i int, arr []int) []int {
+	length := len(arr)
+	arr = append(arr, length+1)
+	arr[length] = i
+	return arr
+}
+
+func createServices(num int, maxDependencies int) []Deployment {
+	deps := createDependencyMap(num, maxDependencies)
+	services := make([]Deployment, len(deps)-1)
+	for i, dep := range deps {
+		if i > 0 {
+			services[i-1] = createService(dep)
+		}
+	}
+	return services
+}
+
+func createDependencies(maxDependencies int, deps []Dependencies) []Dependencies {
+	// let's calculate how many dependencies this entry has
+	for index, dependency := range deps {
+		if index > 0 {
+			for idx := range dependency.List {
+				dep := index
+				for !allowedDependency(dep, dependency.List, dependency.Forbidden) {
+					dep = random(1, len(deps))
+				}
+				dependency.List[idx] = dep
+				target := deps[dep]
+				if !intInSlice(index, target.Forbidden) {
+					target.Forbidden = addtoSlice(index, target.Forbidden)
+					deps[dep] = target
+				}
+			}
+			deps[index] = dependency
+		}
+	}
+	return deps
+}
+
+func createDependencyMap(num int, maxDependencies int) []Dependencies {
+	dep := make([]Dependencies, num+1)
+	// initialise
+	for i := 1; i < num+1; i++ {
+		numDep := random(0, maxDependencies)
+		dep[i] = Dependencies{
+			Index:     i,
+			List:      make([]int, numDep),
+			Forbidden: []int{i},
+		}
+	}
+	dep = createDependencies(maxDependencies, dep)
+
+	return dep
 }
 
 func generateMatrix(services []Deployment, baseDir string) {
