@@ -2,14 +2,15 @@ package main
 
 import (
 	"flag"
+	"log"
 	"math/rand"
 	"os"
 	"time"
 )
 
-func check(e error) {
-	if e != nil {
-		panic(e)
+func checkError(message string, err error) {
+	if err != nil {
+		log.Fatal(message, err)
 	}
 }
 
@@ -29,5 +30,6 @@ func main() {
 
 	generateMatrix(services, *baseDir)
 	writeServicesToYaml(services, *baseDir, *baseTemplate)
+	writeServicesToCSV(services, *baseDir)
 
 }

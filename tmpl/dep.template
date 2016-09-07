@@ -16,12 +16,16 @@ spec:
       containers:
       - image: ipedrazas/docmock:latest
         name: api-{{ .Name }}
+        resources:
+          requests:
+            cpu: "20m"
+            memory: "55M"
         imagePullPolicy: Always
         livenessProbe:
           httpGet:
             path: /_status/healthz
             port: 5000
-          initialDelaySeconds: 60
+          initialDelaySeconds: 90
           timeoutSeconds: 10
         readinessProbe:
           httpGet:

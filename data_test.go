@@ -43,45 +43,38 @@ func TestIntInSlice(t *testing.T) {
 
 func TestAllowDependency(t *testing.T) {
 
-	blocked := []int{1, 2, 3, 4}
-	allDeps := []int{6, 7, 8}
+	dep := Dependencies{
+		List:      []int{1, 2, 3},
+		Forbidden: []int{1, 6},
+		Index:     9,
+	}
 
-	if !allowedDependency(12, allDeps, blocked) {
+	if !allowedDependency(12, dep) {
 		t.Error("Dependency not allowed")
 	}
-	if allowedDependency(3, allDeps, blocked) {
+	if allowedDependency(6, dep) {
 		t.Error("Dependency not allowed")
 	}
 }
 
-func TestGenerateDependency(t *testing.T) {
-	maxDeps := 2
-	block := []int{3}
-	newDep := generateDependencies(3, maxDeps, block)
-	if len(newDep) > maxDeps {
-		t.Error("Too many Dependencies")
-	}
-	if intInSlice(block[0], newDep) {
-		t.Error("Blocked indexes should not be in dependencies")
-	}
-}
+func TestCreateService(t *testing.T) {
 
-// func TestCreateService(t *testing.T) {
-// 	// index int, total int, maxDep int
-// 	//
-// 	index := 3
-// 	total := 100
-// 	maxDep := 3
-// 	srv := createService(index, total, maxDep)
-// 	if srv.Index != index {
-// 		t.Error("Index is wrong")
-// 	}
-// 	if len(srv.DependencyIndexes) > maxDep {
-// 		t.Error("Too many dependencies")
-// 	}
-// 	// js, _ := json.Marshal(srv)
-// 	// fmt.Println(string(js))
-// }
+	dep := Dependencies{
+		List:      []int{1, 2, 3},
+		Forbidden: []int{1, 6},
+		Index:     9,
+	}
+
+	srv := createService(dep)
+	if srv.Index != 9 {
+		t.Error("Index is wrong")
+	}
+	if srv.Name != "ms-0009" {
+		t.Error("Name not set properly")
+	}
+	// js, _ := json.Marshal(srv)
+	// fmt.Println(string(js))
+}
 
 func TestAddToSlice(t *testing.T) {
 	sl := []int{1, 2, 3, 4}
