@@ -43,3 +43,14 @@ build:
         name: go test
         code: |
           go test ./...
+deploy:
+    steps:
+        - github-create-release:
+            token: $GITHUB_TOKEN
+            tag: $GITHUB_RELEASE_VERSION
+            title: Application $GITHUB_RELEASE_VERSION
+            draft: true
+        - github-upload-asset:
+            token: $GITHUB_TOKEN
+            file: build.tgz
+            filename: 1024apis-$GITHUB_RELEASE_VERSION.tgz
