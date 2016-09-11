@@ -1,8 +1,11 @@
 package main
 
-import "strings"
+import (
+	"strings"
+	"testing"
+)
 
-func toNeo_test(t *T.testing) {
+func toNeo_test(t *testing.T) {
 	name := "ms-0009"
 	neoName := toNeo(name)
 	if strings.Contains(neoName, "-") {
