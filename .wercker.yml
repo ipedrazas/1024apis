@@ -36,7 +36,7 @@ build:
     - script:
         name: go build
         code: |
-          go build ./...
+          bash -c "./release.sh"
     # Test the project
     - script:
         name: go test
@@ -45,10 +45,7 @@ build:
 deploy:
     steps:
       # Build the project
-        - script:
-            name: go build
-            code: |
-              bash -c "./release.sh"
+      #  steps:
         - github-create-release:
             token: $GITHUB_TOKEN
             tag: $GITHUB_RELEASE_VERSION
