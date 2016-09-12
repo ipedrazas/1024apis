@@ -46,12 +46,8 @@ deploy:
     steps:
       # Build the project
       #  steps:
-        - github-create-release:
-            token: $GITHUB_TOKEN
-            tag: $GITHUB_RELEASE_VERSION
-            title: Application $GITHUB_RELEASE_VERSION
-            draft: true
-        - github-upload-asset:
-            token: $GITHUB_TOKEN
-            file: 1024apis.tar.gz
-            filename: 1024apis-$GITHUB_RELEASE_VERSION.tar.gz
+        - tcnksm/ghr:
+          token: $GITHUB_TOKEN
+          input: $WERCKER_SOURCE_DIR/bin
+          version: latest
+          replace: true
