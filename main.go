@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"log"
 	"math/rand"
 	"os"
@@ -15,6 +16,11 @@ func checkError(message string, err error) {
 }
 
 func main() {
+	// first arg is the program itself
+	if len(os.Args) == 1 {
+		fmt.Println("1024apis, a little tool to simulate microservices systems")
+		os.Exit(0)
+	}
 	rand.Seed(time.Now().Unix())
 	numRes := flag.Int("n", 1, "Number of resources created")
 	baseTemplate := flag.String("t", "tmpl/dep.template", "Template used")

@@ -36,8 +36,7 @@ build:
     - script:
         name: go build
         code: |
-          go build ./...
-
+          bash -c "./release.sh"
     # Test the project
     - script:
         name: go test
