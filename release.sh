@@ -3,6 +3,7 @@
 OSS=(darwin linux freebsd)
 ARCHS=(amd64 386)
 
+mkdir -p src
 mkdir -p bin
 rm -f bin/1024apis-*
 
@@ -13,3 +14,9 @@ for os in "${OSS[@]}"; do
         mv 1024apis bin/1024apis-$os-$arch
     done
 done
+
+mv *.go src
+mv kube src
+mv tmpl src
+mv examples src
+rm -rf .git .gitignore .wercker.yml release.sh
